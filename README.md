@@ -1,6 +1,27 @@
+- [Introduction](#introduction)
+  * [Why vanilla transformer is not efficient](#why-vanilla-transformer-is-not-efficient)
+  * [How to make it efficient](#how-to-make-it-efficient)
+- [Task 1: Choosing a model and making it efficient](#task-1-choosing-a-model-and-making-it-efficient)
+  * [Which Transformer family to pick from](#which-transformer-family-to-pick-from)
+  * [Which approach to choose](#which-approach-to-choose)
+    + [What not to choose](#what-not-to-choose)
+    + [FNet: the selected approach](#fnet-the-selected-approach)
+  * [Implementation](#implementation)
+    + [Setting the code](#setting-the-code)
+    + [Setting the weights](#setting-the-weights)
+    + [Confession of sin](#confession-of-sin)
+- [Task 2: fine tuning on GLUE](#task-2-fine-tuning-on-glue)
+  * [Selected fine-tuning tasks](#selected-fine-tuning-tasks)
+  * [Fine-tuning code](#fine-tuning-code)
+  * [Hyperparameters](#hyperparameters)
+  * [Results](#results)
+    + [Time-space performance](#time-space-performance)
+    + [Paying for our sins: NLU performance](#paying-for-our-sins-nlu-performance)
+- [Further work](#further-work)
+
 # Introduction
 
-## Why vanilla transformer is not efficient?
+## Why vanilla transformer is not efficient
 
 The main efficiency bottleneck in Transformer models is its self-attention mechanism.
 
@@ -28,8 +49,7 @@ In more detail:
     - $W_i^Q, W_i^K \in \mathbb{R}^{d_\text{model}\times d_k}$.
     - $W_i^V \in \mathbb{R}^{d_\text{model}\times d_v}$ (often $d_v = d_k = d$).
     
-
-then (single head) attention is defined as:
+    then (single head) attention is defined as:
 
 $$
 \begin{align*}
@@ -161,10 +181,9 @@ We know that HF’s `transformers` already include the FNet model (see [here](ht
 
 - We initialize the weights of a `MyFNetModel` to the pre-trained weights of a `BertModel.from_pretrained("bert-base-uncased")` model.
 - We host the weight on HF Hub for easily loading the them for the downstream fine-tuning tasks.
+    - Code for loading the `state_dict` and pushing to the Hub can be found [here](models/my_fnet/load_bert_weights_and_push_fnet_to_hub.ipynb).
+    - The corresponding checkpoint hosted in HF Hub: [here](https://huggingface.co/Joqsan/custom-fnet/tree/main).
 
-Code for loading the `state_dict` and pushing to the Hub can be found here:
-
-- `[load_bert_weights_and_push_fnet_to_hub.ipynb](https://github.com/Joqsan/bert-vs-fnet/blob/master/models/my_fnet/load_bert_weights_and_push_fnet_to_hub.ipynb)`
 
 <aside>
 ⛔ To run the experiments, this notebook doesn’t need to be run.
@@ -263,7 +282,7 @@ Access to all logging and plots can be found [here](https://wandb.ai/joqsan-a/co
 
 ![Screenshot from 2023-01-31 15-28-48.png](reports/figures/Screenshot_from_2023-01-31_15-28-48.png)
 
-### Paying for our own sins: NLU performance
+### Paying for our sins: NLU performance
 
 - As in the paper, we can observe performance degradation with respect to the GLUE metrics.
 - But in our case we observe substantially performance decrease across all the tasks in comparison to what vanilla BERT achieved after fine-tuning.
