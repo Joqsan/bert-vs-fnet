@@ -164,14 +164,14 @@ For this reason the code is in separate repository ([https://github.com/Joqsan/t
 
 We know that HF’s `transformers` already include the FNet model (see [here](https://huggingface.co/docs/transformers/model_doc/fnet)) but, as expected, we ignore it and opt to:
 
-1. Begin with a copy of their BERT code [commit 8ffbcff](https://github.com/Joqsan/transformers/commit/8ffbcff3d2bb5176d070757e42a94e910a3e5f38) (copy-pasted from [here](https://github.com/Joqsan/transformers/blob/fnet/src/transformers/models/bert/modeling_bert.py)).
+1. Begin with a copy of their BERT code. See [commit 8ffbcff](https://github.com/Joqsan/transformers/commit/8ffbcff3d2bb5176d070757e42a94e910a3e5f38). Copy-pasted from [here](https://github.com/Joqsan/transformers/blob/fnet/src/transformers/models/bert/modeling_bert.py).
 2. Change the self-attention sub-layer as describe above (see image). In the transformers codebase this amounts to:
     1. Modifying the corresponding `PreTrainedConfig` subclass to match the FNet hyperparameters.
     2. Replacing `BertSelfAttention`.
     
     All this is done in [commit dd08150](https://github.com/Joqsan/transformers/commit/dd0815078f6de971cabc9cec7ce580f4b4eb92a0)
     
-    ✅ We also change the class name to avoid conflicting with the names in `modeling_bert.py` [commit 823bb6e](https://github.com/Joqsan/transformers/commit/823bb6e0f821420a225fb4dcfb8ef7a9dcbcd28b).
+    ✅ We also change the class name to avoid conflicting with the names in `modeling_bert.py`. See [commit 823bb6e](https://github.com/Joqsan/transformers/commit/823bb6e0f821420a225fb4dcfb8ef7a9dcbcd28b).
     
 
 ### Setting the weights
