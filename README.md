@@ -32,9 +32,9 @@ In short:
 In more detail:
 
 - Fact 1:
-    - If $A \in \mathbb{R}^{p\times q}$, $B \in  \mathbb{R}^{q\times r}$, then the matrix multiplication $AB \in  \mathbb{R}^{p\times r}$:
+    - If $A \in \mathbb{R}^{p\times q}$, $B \in  \mathbb{R}^{q\times r}$, then the matrix multiplication $C = AB \in  \mathbb{R}^{p\times r}$:
         - has time complexity $O(pqr)$.
-            - Each element $(AB)_{ij} = \sum_{k=1}^q A_{ik}B_{kj}$ requires $O(q)$ computations.
+            - Each element $C_{ij} = \sum\limits_{k=1}^{q} A_{ik}B_{kj}$ requires $O(q)$ computations.
             - We have to compute $pr$ such elements $\implies O(pqr)$.
         - has time complexity $O(pr)$.
             - The space required to store the elements in $AB$.
@@ -110,7 +110,7 @@ The given choice (BERT) also affects the possible approaches we can pursue in ma
     - Linformer ([Wang et al. 2020](https://arxiv.org/abs/2006.04768)):
         - Idea:
             - Approximate self-attention with an approximate low-rank matrix.
-            - In other words, project $KW_i^K$ and $VW_i^V$ ($\in \mathbb{R}^{n\times d}$) into a lower dimensional space using linear projections with matrices $E_i, F_i \in \mathbb R^{n×k}$, where $i$ stand for the $i$-th layer in the Encoder.
+            - In other words, project $KW_i^K,\ VW_i^V \in \mathbb{R}^{n\times d}$ into a lower dimensional space using linear projections with matrices $E_i, F_i \in \mathbb R^{n×k}$, where $i$ stand for the $i$-th layer in the Encoder.
         - Drawback:
             - It assumes a fixed sequence length. In other words, for every possible sequence length $n_j$ we’d need a new pair of matrices $E_i, F_i \in \mathbb R^{n_j×k}$ (either for the whole model, if we set $E_i = E$ and $F_i = F$, or for every encoder layer).
             - We could have just padded every batch to `max_seq_length`, and set $n_j =$ `max_seq_length`but we chose not to do that, assuming it may be harmful for dowstream performance.
@@ -136,20 +136,20 @@ To be concise, the paper proposes to replace the self-attention sub-layer comple
 
 ![pic.jpeg](reports/figures/pic.jpeg)
 
-- The computed Fourier Transform is 2D: along the sequence-length dimension and along the embedding dimensions. That is, for matrix elements $(X)_{rs} = x_{rs}$ that would be similar to this:
-    
-    $$
-    A_{kl} =  \sum_{r=0}^{n-1} \sum_{s=0}^{d_{\text{model}}-1} x_{rs}\exp\left\{-2\pi i \left({rk\over n}+{sl\over d_{\text{model}}}\right)\right\}
-    $$
-    
-    where $k \in [0, n-1],\ l = [0, d_{\text{model}}-1]$.
-    
+The computed Fourier Transform is 2D: along the sequence-length dimension and along the embedding dimensions. That is, for a matrix $X$ with elements $x_{rs}$ that would be similar to this:
 
-- In this way, the time complexity is reduced from $O(n^2)$ to $O(n\log n)$, if the Fourier Transform is implemented with the FFT algorithm.
-- The space complexity depends on the FFT implementation:
-    - If recursive, then $O(n\log n)$.
-    - If iterative, then $O(n)$.
-    - We’ll assume that the PyTorch implementations in `torch.fft` is efficient, so we expect a linear space complexity.
+$$
+A_{kl} =  \sum_{r=0}^{n-1} \sum_{s=0}^{d_{\text{model}}-1} x_{rs}\exp\left [ -2\pi i \left({rk\over n}+{sl\over d_{\text{model}}}\right)\right ]
+$$
+  
+  where $k \in [0, n-1],\ l = [0, d_{\text{model}}-1]$.
+    
+In this way, the time complexity is reduced from $O(n^2)$ to $O(n\log n)$, if the Fourier Transform is implemented with the FFT algorithm.
+
+The space complexity depends on the FFT implementation:
+- If recursive, then $O(n\log n)$.
+- If iterative, then $O(n)$.
+- We’ll assume that the PyTorch implementations in `torch.fft` is efficient, so we expect a linear space complexity.
 
 ## Implementation
 
@@ -164,17 +164,14 @@ For this reason the code is in separate repository ([https://github.com/Joqsan/t
 
 We know that HF’s `transformers` already include the FNet model (see [here](https://huggingface.co/docs/transformers/model_doc/fnet)) but, as expected, we ignore it and opt to:
 
-1. Begin with a copy of their BERT code https://github.com/Joqsan/transformers/commit/8ffbcff3d2bb5176d070757e42a94e910a3e5f38 (copy-pasted from [here](https://github.com/Joqsan/transformers/blob/fnet/src/transformers/models/bert/modeling_bert.py)).
+1. Begin with a copy of their BERT code [commit 8ffbcff](https://github.com/Joqsan/transformers/commit/8ffbcff3d2bb5176d070757e42a94e910a3e5f38) (copy-pasted from [here](https://github.com/Joqsan/transformers/blob/fnet/src/transformers/models/bert/modeling_bert.py)).
 2. Change the self-attention sub-layer as describe above (see image). In the transformers codebase this amounts to:
     1. Modifying the corresponding `PreTrainedConfig` subclass to match the FNet hyperparameters.
     2. Replacing `BertSelfAttention`.
     
-    All this is done in https://github.com/Joqsan/transformers/commit/dd0815078f6de971cabc9cec7ce580f4b4eb92a0
+    All this is done in [commit dd08150](https://github.com/Joqsan/transformers/commit/dd0815078f6de971cabc9cec7ce580f4b4eb92a0)
     
-    <aside>
-    ✅ We also change the class name to avoid conflicting with the names in `modeling_bert.py` https://github.com/Joqsan/transformers/commit/823bb6e0f821420a225fb4dcfb8ef7a9dcbcd28b.
-    
-    </aside>
+    ✅ We also change the class name to avoid conflicting with the names in `modeling_bert.py` [commit 823bb6e](https://github.com/Joqsan/transformers/commit/823bb6e0f821420a225fb4dcfb8ef7a9dcbcd28b).
     
 
 ### Setting the weights
@@ -196,7 +193,7 @@ Usually when modifying inner layers in a model we need to fine-tune it in some p
 
 Even when doing so, some authors still got drops in performances and recommend training the whole model from scratch ([Kasai et al. 2021](https://arxiv.org/pdf/2103.13076.pdf))
 
-In our case, we replace the self-attention layer with unparametrized Fourier Transform layers $\implies$we don’t have weights to tune inside these layers $\implies$the only approach left is to pre-train the whole model from scratch, which is what the FNet authors did.
+In our case, we replace the self-attention layer with unparametrized Fourier Transform layers $\implies$ we don’t have weights to tune inside these layers $\implies$ the only approach left is to pre-train the whole model from scratch, which is what the FNet authors did.
 
 Due to limitation of computational resources pre-training our FNet is too costly, so as in the previous section we decided to use the weights of a pre-trained BERT as starting point for our downstream fine-tuning. 
 
