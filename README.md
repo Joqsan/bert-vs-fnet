@@ -1,5 +1,5 @@
 - [Introduction](#introduction)
-  * [Why vanilla transformer is not efficient](#why-vanilla-transformer-is-not-efficient)
+  * [Why vanilla transformers are not efficient](#why-vanilla-transformers-are-not-efficient)
   * [How to make it efficient](#how-to-make-it-efficient)
 - [Task 1: Choosing a model and making it efficient](#task-1-choosing-a-model-and-making-it-efficient)
   * [Which Transformer family to pick from](#which-transformer-family-to-pick-from)
@@ -21,7 +21,7 @@
 
 # Introduction
 
-## Why vanilla transformer is not efficient
+## Why vanilla transformers are not efficient
 
 The main efficiency bottleneck in Transformer models is its self-attention mechanism.
 
