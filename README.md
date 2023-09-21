@@ -36,7 +36,7 @@ In more detail:
         - has time complexity $O(pqr)$.
             - Each element $C_{ij} = \sum\limits_{k=1}^{q} A_{ik}B_{kj}$ requires $O(q)$ computations.
             - We have to compute $pr$ such elements $\implies O(pqr)$.
-        - has time complexity $O(pr)$.
+        - has space complexity $O(pr)$.
             - The space required to store the elements in $AB$.
 - Fact 2:
     
@@ -51,12 +51,7 @@ In more detail:
     
     then (single head) attention is defined as:
 
-$$
-\begin{align*}
-\mathrm{Attention}(X) &= \mathrm{Attention}(XW_i^Q,\ XW_i^K,\ XW_i^V)\\
-&= \underbrace{\mathrm{softmax}\left(\frac{XW_i^Q(W_i^K)^\top X^\top}{\sqrt{d_k}} \right)}_{n\times n}\underbrace{XW_i^V\vphantom{\left(\frac{XW_i^Q(W_i^k)^\top X^\top}{\sqrt{d_k}} \right)}}_{n\times d_v}
-\end{align*}
-$$
+![equation](reports/figures/equation.png)
 
 Since $XW_i^Q,\ XW_i^K \in \mathbb{R}^{n\times d_k} \implies$ from Fact 1 it follows that the matrix multiplication $XW_i^Q(XW_i^K)^\top$ has time complexity $O(nd_k n) = O(n^2)$ and space complexity $O(n^2)$ with respect to sequence length.
 
