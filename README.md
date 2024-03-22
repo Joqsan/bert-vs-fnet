@@ -65,11 +65,11 @@ Different approaches has been proposed to improve the efficiency of training the
     - sparsity ([Child et al. 2019](https://arxiv.org/abs/1904.10509v1)).
     - pooling-based compression ([Rae et al. 2020](https://openreview.net/forum?id=SylKikSYDH)).
     - clustering/binning/convolution techniques, which applies $k$-means clustering to learn dynamic sparse attention regions (e.g. [Roy et al. 2020](https://arxiv.org/abs/2003.05997)).
-- Restrict the attention mechanism to attend to local neighborhoods ([Parmar et al. 2018](http://proceedings.mlr.press/v80/parmar18a.html))
+- Restrict the attention mechanism to attend to local neighborhoods ([Parmar et al. 2018](http://proceedings.mlr.press/v80/parmar18a.html)).
 - Using a *Reformer* approach ([Kitaev et al. 2020](https://arxiv.org/pdf/2001.04451.pdf))
-    - where locality sensitive hashing is used to group together tokens of similar embeddings)
-- Sliding windows ([Beltagy et al. 2020](https://arxiv.org/abs/2004.05150))
-- Truncated targeting ([Chelba et al. 2020](https://arxiv.org/abs/2001.04589))
+    - where locality sensitive hashing is used to group together tokens of similar embeddings).
+- Sliding windows ([Beltagy et al. 2020](https://arxiv.org/abs/2004.05150)).
+- Truncated targeting ([Chelba et al. 2020](https://arxiv.org/abs/2001.04589)).
 
 # Task 1: Choosing a model and making it efficient
 
